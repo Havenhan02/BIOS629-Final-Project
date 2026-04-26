@@ -1,8 +1,12 @@
-# BIOS629 Final Project: Clinical vs. Genomic Predictors of Overall Survival in NSCLC
+# 🔬 BIOS629 Final Project: Clinical vs. Genomic Predictors of Overall Survival in NSCLC
+
+### 🌐 [View Project Website](https://havenhan02.github.io/BIOS629-Final-Project/)
 
 **Author:** Wenjie Han  
-**Course:** BIOS 629 - Winter 2026  
+**Course:** BIOS 629 Case Study - Winter 2026  
 **University of Michigan, Department of Biostatistics**
+
+---
 
 ## Overview
 
@@ -41,18 +45,23 @@ All numerical results from deterministic models (Cox PH) will be exactly reprodu
 ├── generate_plots.R           # Other plot generation scripts
 ├── dataset/
 │   └── msk_chord_2024_NSCLC_data.csv   # NSCLC subset data
-└── final_output/
-    ├── fig1_cv_boxplot.png              # Cross-validation C-index boxplot
-    ├── fig2_cv_barplot.png              # CV performance bar plot
-    ├── fig3_variable_importance.png     # Variable importance plot
-    ├── fig4_km_overall.png              # Overall KM survival curve
-    ├── fig5_km_stage.png                # KM by cancer stage
-    ├── fig6_km_risk_groups.png          # KM by risk groups
-    ├── risk_group_summary.csv           # Risk group statistics
-    ├── analysis_risk.rds                # RSF risk analysis object
-    ├── cv_results.rds                   # Cross-validation results
-    ├── cv_summary.rds                   # CV summary statistics
-    └── importance_df.rds                # Variable importance data
+├── final_output/
+│   ├── fig1_cv_boxplot.png              # Cross-validation C-index boxplot
+│   ├── fig2_cv_barplot.png              # CV performance bar plot
+│   ├── fig3_variable_importance.png     # Variable importance plot
+│   ├── fig4_km_overall.png              # Overall KM survival curve
+│   ├── fig5_km_stage.png                # KM by cancer stage
+│   ├── fig6_km_risk_groups.png          # KM by risk groups
+│   ├── risk_group_summary.csv           # Risk group statistics
+│   ├── analysis_risk.rds                # RSF risk analysis object
+│   ├── cv_results.rds                   # Cross-validation results
+│   ├── cv_summary.rds                   # CV summary statistics
+│   └── importance_df.rds                # Variable importance data
+└── docs/                                # Project website (GitHub Pages)
+    ├── index.html
+    ├── style.css
+    ├── report.pdf
+    └── figures/
 ```
 
 ## Key Results
@@ -61,11 +70,11 @@ All numerical results from deterministic models (Cox PH) will be exactly reprodu
 |-------|-------------------|-------------------|
 | Clinical Cox PH | 0.668 ± 0.015 | 0.669 |
 | Clinical + Genomic Cox PH | 0.678 ± 0.015 | 0.679 |
-| Random Survival Forest | 0.681 ± 0.014 | 0.691 |
+| Random Survival Forest | **0.681 ± 0.014** | **0.691** |
 
 **Top Predictors:** Stage > Fraction Genome Altered > Mutation Count > TMB > Age > Smoking > Sex
 
 **Risk Stratification (Tertiles):**
-- Low Risk: 34.3 mo median OS, 28% event rate
-- Intermediate Risk: 22.2 mo median OS, 53.2% event rate  
-- High Risk: 13.5 mo median OS, 73.1% event rate
+- 🟢 Low Risk: 34.3 mo median OS, 28% event rate
+- 🟡 Intermediate Risk: 22.2 mo median OS, 53.2% event rate  
+- 🔴 High Risk: 13.5 mo median OS, 73.1% event rate
