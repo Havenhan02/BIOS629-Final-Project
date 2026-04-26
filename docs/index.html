@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinical vs. Genomic Predictors of Overall Survival in NSCLC</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION
+  ═══════════════════════════════════════════ -->
+  <nav>
+    <a class="nav-brand" href="#">BIOS 629 · Wenjie Han</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#methods">Methods</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#risk">Risk Stratification</a></li>
+      <li><a href="#conclusions">Conclusions</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════ -->
+  <div class="hero">
+    <span class="tag">MSK-CHORD · NSCLC · 2026</span>
+    <h1>Clinical vs. Genomic Predictors<br>of Overall Survival in NSCLC</h1>
+    <p class="subtitle">
+      We applied survival models to 7,429 NSCLC patients from the MSK-CHORD cohort,
+      finding that adding genomic features (FGA, mutation count, TMB) to clinical variables
+      improved prediction, and a Random Survival Forest achieved the highest C-index of 0.681.
+    </p>
+    <div class="hero-actions">
+      <a href="report.pdf" class="btn-primary">Read report</a>
+      <a href="https://github.com/Havenhan02/BIOS629-Final-Project" class="btn-outline" target="_blank">Code ↗</a>
+      <a href="https://www.cbioportal.org/study/summary?id=msk_chord_2024" class="btn-outline" target="_blank">Data ↗</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <strong>7,429</strong>
+        <span>Patients</span>
+      </div>
+      <div class="stat-item">
+        <strong>0.681</strong>
+        <span>Best C-index (RSF)</span>
+      </div>
+      <div class="stat-item">
+        <strong>51.4%</strong>
+        <span>Event Rate</span>
+      </div>
+      <div class="stat-item">
+        <strong>3</strong>
+        <span>Models Compared</span>
+      </div>
+    </div>
+  </div>
+
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════
+         ABOUT
+    ═══════════════════════════════════════════ -->
+    <section id="about">
+      <div class="container">
+        <h2>About</h2>
+
+        <p>
+          Non-small cell lung cancer (NSCLC) accounts for approximately 85% of all lung cancers
+          and remains a leading cause of cancer-related mortality worldwide. While clinical
+          variables such as stage, age, and smoking history are well-established prognostic
+          factors, the incremental value of genomic features for survival prediction
+          remains an active area of investigation.
+        </p>
+
+        <p>
+          The <strong>MSK-CHORD</strong> cohort (Memorial Sloan Kettering Cancer Center,
+          <em>Nature</em>, 2024) provides a unique opportunity to study this question,
+          combining comprehensive clinical annotations with genomic profiling data—including
+          Fraction Genome Altered (FGA), Mutation Count, and Tumor Mutational Burden (TMB)—across
+          thousands of patients.
+        </p>
+
+        <h3>Research Question</h3>
+        <p>
+          Can genomic features improve the prediction of overall survival in NSCLC
+          beyond standard clinical variables? We compare three modeling approaches and
+          develop a risk stratification tool to enhance clinical interpretability.
+        </p>
+
+        <h3>Cohort</h3>
+        <ul>
+          <li><strong>Source:</strong> MSK-CHORD (cBioPortal, msk_chord_2024)</li>
+          <li><strong>Population:</strong> 7,809 NSCLC patients → 7,429 after complete-case analysis</li>
+          <li><strong>Events:</strong> 3,820 deaths (51.4% event rate)</li>
+          <li><strong>Median follow-up:</strong> 16.4 months</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         METHODS
+    ═══════════════════════════════════════════ -->
+    <section id="methods">
+      <div class="container">
+        <h2>Methods</h2>
+
+        <h3>Variables</h3>
+        <div class="var-table">
+          <div class="var-row var-header">
+            <span>Type</span>
+            <span>Variables</span>
+          </div>
+          <div class="var-row">
+            <span class="var-type clinical">Clinical</span>
+            <span>Age, Sex, Cancer Stage, Smoking History</span>
+          </div>
+          <div class="var-row">
+            <span class="var-type genomic">Genomic</span>
+            <span>Fraction Genome Altered (FGA), Mutation Count, Tumor Mutational Burden (TMB)</span>
+          </div>
+          <div class="var-row">
+            <span class="var-type outcome">Outcome</span>
+            <span>Overall Survival (months), Censored / Deceased</span>
+          </div>
+        </div>
+
+        <h3>Statistical Models</h3>
+        <p>We compared three survival models with increasing complexity:</p>
+        <ol>
+          <li><strong>Clinical Cox PH Model</strong> — age + sex + stage + smoking (baseline clinical variables only)</li>
+          <li><strong>Clinical + Genomic Cox PH Model</strong> — clinical variables + FGA + mutation count + TMB</li>
+          <li><strong>Random Survival Forest (RSF)</strong> — all variables, captures non-linear effects and interactions (500 trees for CV, 1,000 for final model)</li>
+        </ol>
+
+        <h3>Evaluation</h3>
+        <ul>
+          <li><strong>5-fold cross-validation</strong> with Harrell's C-index as the primary metric</li>
+          <li>Full-data model training for variable importance and risk stratification</li>
+          <li>Risk groups defined by tertiles of predicted risk scores</li>
+          <li>Kaplan-Meier analysis within risk groups with log-rank tests</li>
+        </ul>
+
+        <h3>Software</h3>
+        <p>
+          Analysis was performed in R using <code>survival</code>, <code>survminer</code>,
+          <code>randomForestSRC</code>, <code>survcomp</code>, and <code>caret</code> packages.
+          Code is fully reproducible with <code>set.seed(629)</code>.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         RESULTS
+    ═══════════════════════════════════════════ -->
+    <section id="results">
+      <div class="container">
+        <h2>Results</h2>
+
+        <h3>Model Performance</h3>
+        <p>
+          All three models demonstrated discriminative ability above random (C-index > 0.5),
+          with the Random Survival Forest achieving the highest cross-validated performance.
+          Adding genomic features to the clinical model yielded a consistent improvement
+          in both Cox and RSF frameworks.
+        </p>
+
+        <div class="perf-table">
+          <div class="perf-row perf-header">
+            <span>Model</span>
+            <span>5-Fold CV C-index</span>
+            <span>Full-Data C-index</span>
+          </div>
+          <div class="perf-row">
+            <span>Clinical Cox PH</span>
+            <span>0.668 ± 0.015</span>
+            <span>0.669</span>
+          </div>
+          <div class="perf-row">
+            <span>Clinical + Genomic Cox PH</span>
+            <span>0.678 ± 0.015</span>
+            <span>0.679</span>
+          </div>
+          <div class="perf-row highlight">
+            <span>Random Survival Forest</span>
+            <span><strong>0.681 ± 0.014</strong></span>
+            <span><strong>0.691</strong></span>
+          </div>
+        </div>
+
+        <div class="fig-grid">
+          <!-- Figure 1: CV Boxplot -->
+          <figure>
+            <p class="fig-finding">
+              The RSF model achieved the highest median C-index across folds,
+              with narrower variability than either Cox model.
+            </p>
+            <img src="figures/fig1_cv_boxplot.png"
+                 alt="Box plot of C-index across 5-fold cross-validation for three models">
+            <figcaption>
+              <strong>Figure 1.</strong> Distribution of C-index values across 5-fold
+              cross-validation. Each dot represents one fold. The Random Survival Forest
+              (red) shows the highest and most consistent performance.
+            </figcaption>
+          </figure>
+
+          <!-- Figure 2: CV Barplot -->
+          <figure>
+            <p class="fig-finding">
+              Adding genomic variables to the clinical Cox model improved the
+              mean C-index from 0.668 to 0.678 (+1.5%).
+            </p>
+            <img src="figures/fig2_cv_barplot.png"
+                 alt="Bar plot of mean C-index with error bars for three models">
+            <figcaption>
+              <strong>Figure 2.</strong> Mean C-index from 5-fold cross-validation with
+              standard deviation error bars. Error bars represent ±1 SD across folds.
+            </figcaption>
+          </figure>
+        </div>
+
+        <h3>Variable Importance</h3>
+        <p>
+          Cancer stage dominated all models as the strongest predictor of survival,
+          followed by Fraction Genome Altered (FGA), mutation count, and TMB.
+          This highlights the prognostic value of genomic instability measures
+          even after adjusting for clinical stage.
+        </p>
+
+        <div class="fig-grid fig-single">
+          <figure>
+            <p class="fig-finding">
+              Stage (0.205) is the dominant predictor, but FGA (0.099) and mutation count
+              (0.053) are the top genomic contributors.
+            </p>
+            <img src="figures/fig3_variable_importance.png"
+                 alt="Variable importance plot from Random Survival Forest">
+            <figcaption>
+              <strong>Figure 3.</strong> Variable importance from the Random Survival Forest
+              (full dataset, 1,000 trees). Higher values indicate greater predictive
+              contribution. Stage dominates, but three genomic features rank among the
+              top five predictors.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         RISK STRATIFICATION
+    ═══════════════════════════════════════════ -->
+    <section id="risk">
+      <div class="container">
+        <h2>Risk Stratification</h2>
+
+        <p>
+          Patients were divided into three risk groups (tertiles) based on
+          RSF-predicted mortality scores. The resulting groups showed dramatically
+          different survival outcomes, demonstrating the clinical utility of the model.
+        </p>
+
+        <div class="risk-cards">
+          <div class="risk-card low">
+            <div class="risk-label">Low Risk</div>
+            <div class="risk-stat">34.3 <span>mo</span></div>
+            <div class="risk-desc">Median Overall Survival</div>
+            <div class="risk-event">28% event rate</div>
+          </div>
+          <div class="risk-card mid">
+            <div class="risk-label">Intermediate Risk</div>
+            <div class="risk-stat">22.2 <span>mo</span></div>
+            <div class="risk-desc">Median Overall Survival</div>
+            <div class="risk-event">53.2% event rate</div>
+          </div>
+          <div class="risk-card high">
+            <div class="risk-label">High Risk</div>
+            <div class="risk-stat">13.5 <span>mo</span></div>
+            <div class="risk-desc">Median Overall Survival</div>
+            <div class="risk-event">73.1% event rate</div>
+          </div>
+        </div>
+
+        <div class="fig-grid fig-single">
+          <figure>
+            <p class="fig-finding">
+              The three RSF-derived risk groups show significantly different survival
+              curves (log-rank p < 0.001), with a 2.5× difference in median OS
+              between low and high risk.
+            </p>
+            <img src="figures/fig6_km_risk_groups.png"
+                 alt="Kaplan-Meier survival curves by RSF risk groups">
+            <figcaption>
+              <strong>Figure 4.</strong> Kaplan-Meier survival curves stratified by
+              RSF-predicted risk tertiles. Low-risk patients (green) have markedly
+              better survival than intermediate (yellow) and high-risk (red) groups.
+              Risk tables show the number of patients at risk over time.
+            </figcaption>
+          </figure>
+        </div>
+
+        <h3>Additional Survival Analysis</h3>
+
+        <div class="fig-grid">
+          <figure>
+            <img src="figures/fig4_km_overall.png"
+                 alt="Overall Kaplan-Meier survival curve for NSCLC patients">
+            <figcaption>
+              <strong>Figure 5.</strong> Overall survival curve for the full NSCLC cohort
+              (N = 7,429). Median survival is indicated by the dashed horizontal line.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img src="figures/fig5_km_stage.png"
+                 alt="Kaplan-Meier survival curves by cancer stage">
+            <figcaption>
+              <strong>Figure 6.</strong> Survival curves by cancer stage. Stage IV patients
+              show substantially worse outcomes compared to earlier stages
+              (log-rank p < 0.001).
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         CONCLUSIONS
+    ═══════════════════════════════════════════ -->
+    <section id="conclusions">
+      <div class="container">
+        <h2>Conclusions</h2>
+
+        <div class="conclusion-grid">
+          <div class="conclusion-item">
+            <div class="conclusion-num">1</div>
+            <div>
+              <strong>Genomic features improve prediction.</strong>
+              Adding FGA, mutation count, and TMB to clinical variables improved the
+              C-index from 0.668 to 0.678 (+1.5%) in the Cox model and to 0.681 in the RSF.
+            </div>
+          </div>
+          <div class="conclusion-item">
+            <div class="conclusion-num">2</div>
+            <div>
+              <strong>RSF captures non-linear effects.</strong>
+              The Random Survival Forest achieved the best full-data C-index (0.691),
+              suggesting that variable interactions and non-linear relationships
+              contribute to survival prediction.
+            </div>
+          </div>
+          <div class="conclusion-item">
+            <div class="conclusion-num">3</div>
+            <div>
+              <strong>Risk stratification is clinically meaningful.</strong>
+              RSF-derived risk groups separated patients into distinct prognostic categories
+              with a 2.5× difference in median OS between low and high risk (34.3 vs. 13.5 months).
+            </div>
+          </div>
+          <div class="conclusion-item">
+            <div class="conclusion-num">4</div>
+            <div>
+              <strong>Stage dominates, but genomics adds value.</strong>
+              Cancer stage remains the strongest predictor (importance = 0.205),
+              but genomic instability measures (FGA = 0.099) rank second,
+              suggesting they capture complementary prognostic information.
+            </div>
+          </div>
+        </div>
+
+        <h3>Limitations &amp; Future Work</h3>
+        <ul>
+          <li>External validation on independent NSCLC cohorts is needed to confirm generalizability</li>
+          <li>Tumor purity was excluded due to high missingness; imputation may unlock additional signal</li>
+          <li>Specific driver mutations (EGFR, ALK, KRAS) could further refine predictions</li>
+          <li>Progression-free survival analysis could complement the overall survival endpoint</li>
+          <li>A clinical risk calculator tool could translate these findings into bedside decision support</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         TEAM
+    ═══════════════════════════════════════════ -->
+    <section id="team">
+      <div class="container">
+        <h2>Team</h2>
+        <div class="team-card">
+          <div class="team-name">Wenjie Han</div>
+          <div class="team-affil">University of Michigan · Department of Biostatistics</div>
+          <div class="team-course">BIOS 629 — Applied Survival Analysis · Winter 2026</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer>
+    <p>
+      Patient-level MSK-CHORD data are available through
+      <a href="https://www.cbioportal.org/study/summary?id=msk_chord_2024" target="_blank">cBioPortal</a>
+      under controlled access. Analysis code is freely available on
+      <a href="https://github.com/Havenhan02/BIOS629-Final-Project" target="_blank">GitHub</a>.
+    </p>
+    <p>
+      Wenjie Han · University of Michigan · BIOS 629 · 2026
+    </p>
+  </footer>
+
+</body>
+</html>
